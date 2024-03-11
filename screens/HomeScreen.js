@@ -5,12 +5,15 @@ import {Bars3CenterLeftIcon, MagnifyingGlassIcon} from 'react-native-heroicons/o
 import { styles } from '../theme';
 import TrendingMovies from '../components/trendingMovies';
 import MovieList from '../components/movieList';
+import {useNavigation} from '@react-navigation/native'
 
 const ios =  Platform.OS === 'ios';
 export default function HomeScreen() {
     const [trending , setTrending] = useState([1,2,3,4]);
     const [upcoming , setUpcoming] = useState([1,2,3,4]);
     const [topRated , setTopRated] = useState([1,2,3,4]);
+
+    const navigation =useNavigation();
 
 
     return(
@@ -26,7 +29,7 @@ export default function HomeScreen() {
                 className= "text-white text-3xl font-bold "><Text style ={styles.text}>M</Text>ovies
             </Text>
             <TouchableOpacity>
-                <MagnifyingGlassIcon onPress={()=>{alert("Search Functionality Coming Soon")}} size={30} color="#fff"/>
+                <MagnifyingGlassIcon onPress={()=> navigation.navigate('Search')} size={30} color="#fff"/>
             </TouchableOpacity>
             </View>
         </SafeAreaView>

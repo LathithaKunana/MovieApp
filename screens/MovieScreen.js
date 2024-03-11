@@ -5,6 +5,8 @@ import {ChevronLeftIcon} from 'react-native-heroicons/outline'
 import {HeartIcon} from 'react-native-heroicons/solid'
 import { styles, theme } from '../theme';
 import { LinearGradient } from 'expo-linear-gradient'
+import Cast from '../components/cast';
+import MovieList from '../components/movieList';
 
 const {width, height} = Dimensions.get("window");
 const ios =  Platform.OS === 'ios';
@@ -17,6 +19,8 @@ export default function MovieScreen() {
     const {params: item} = useRoute();
     const navigation = useNavigation()
     const [isFavourite,toggleFavourite] = useState(false)
+    const [cast, setCast] = useState([1,2,3,4,5])
+    const [similarMovies, setSimilarMovies] = useState([1,2,3,4,5])
     
     let movieName = 'Ant-Man and the Wasp: Quantumania';
     return (
@@ -73,6 +77,12 @@ export default function MovieScreen() {
                 Ant-Man and the Wasp: Quantumania kicks off Phase 5 of the MCU, setting up a new era for the franchise and introducing Kang the Conqueror as the overarching Multiverse Saga villain. The movie explores the Quantum Realm in detail and reveals Hope's history with Kang, showcasing her complicated past in this world.
                 </Text>
             </View>
+
+            {/* Cast */}
+            <Cast navigation={navigation} cast={cast} />
+
+            {/* Similar movies */}
+            <MovieList hideSeeAll={true} title="Similar  Movies" data={similarMovies} />
         </ScrollView>
     )
 }
