@@ -2,7 +2,7 @@ import React from 'react'
 import {Text,View, ScrollView,TouchableOpacity, Image} from 'react-native'
 
 export default function Cast({cast, navigation}) {
-    let personName = 'Keanu Reevs';
+     personName = 'Keanu Reevs';
     let characterName = 'John Wick';
 
     return(
