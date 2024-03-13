@@ -3,8 +3,8 @@ import {Text,View, ScrollView,TouchableOpacity, Image} from 'react-native'
 
 export default function Cast({cast, navigation}) {
     let personName = 'Keanu Reevs';
-    let characterName = 'John Wick';
-
+    let characterName = 'John Wick';                                                                                             
+                                                                     
     return(
         <View className='my-6'>
             <Text className="text-white text-lg mx-4 mb-5">Top Cast</Text>

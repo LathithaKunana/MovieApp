@@ -7,6 +7,7 @@ import { styles, theme } from '../theme';
 import { LinearGradient } from 'expo-linear-gradient'
 import Cast from '../components/cast';
 import MovieList from '../components/movieList';
+import Loading from '../components/loading';
 
 const {width, height} = Dimensions.get("window");
 const ios =  Platform.OS === 'ios';
@@ -21,6 +22,7 @@ export default function MovieScreen() {
     const [isFavourite,toggleFavourite] = useState(false)
     const [cast, setCast] = useState([1,2,3,4,5])
     const [similarMovies, setSimilarMovies] = useState([1,2,3,4,5])
+    const [loading, setLoading] = useState(false);
     
     let movieName = 'Ant-Man and the Wasp: Quantumania';
     return (
@@ -38,16 +40,25 @@ export default function MovieScreen() {
                         <HeartIcon size="35"  color={isFavourite? theme.background: "white"}/>
                     </TouchableOpacity>
                 </SafeAreaView>
-                <Image
-                    source={require("../assets/images/ant.jpg")}
-                    style={{ width, height: height*0.55, }} 
-                    resizeMode='cover'     
-                />
-                <Image
-                    source={require("../assets/images/gradient.png")}
-                    style={{ width, height: height*0.55, position:"absolute" }} 
-                         
-                />
+                {
+                    loading? (
+                        <Loading/>
+                    ):(
+                            <>
+                            <Image
+                                source={require("../assets/images/ant.jpg")}
+                                style={{ width, height: height*0.55, }} 
+                                resizeMode='cover'     
+                            />
+                            <Image
+                                source={require("../assets/images/gradient.png")}
+                                style={{ width, height: height*0.55, position:"absolute" }} 
+                                    
+                            />
+                        </>
+                    )
+                }
+               
             </View>
             {/* movie details */}
             <View style={{marginTop: -(height*0.11)}} className="space-y-3">
