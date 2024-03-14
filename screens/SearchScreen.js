@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import {Text, View, Dimensions, SafeAreaView, Platform, TextInput ,TouchableOpacity, ScrollView, TouchableWithoutFeedback, Image} from 'react-native'
 import {XMarkIcon} from 'react-native-heroicons/outline'
 import {useNavigation} from "@react-navigation/native"
 import Loading from '../components/loading';
+import { debounce } from 'lodash';
+import { fallbackMoviePoster, image185, searchMovies } from '../api/moviedb';
 
 const ios =  Platform.OS === 'ios';
 const {width,height} =Dimensions.get('window')
@@ -13,18 +15,40 @@ const androidSafeArea = " mt-8 flex-1 bg-neutral-800";
 
 export default function SearchScreen() {
     const navigation = useNavigation();
-    const [results, setResults] = useState([1,2,3,4]);
+    const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     let movieName = 'Ant-Man and the Wasp: Quantumania';
+
+    const handleSearch = value => {
+        if(value && value.length>2) {
+            setLoading(true);
+            searchMovies({
+                query: value, 
+                include_adult: 'false', 
+                language: 'en-US', 
+                page: '1'
+            }).then(data => {
+                setLoading(false);
+                //console.log('got movies: ', data)
+                if(data && data.results) setResults(data.results);
+            })
+        } else{
+            setLoading(false);
+            setResults([])
+        }
+    }
+
+    const handleTextDebounce = useCallback(debounce(handleSearch, 400),[]);
 
   return (
     <View className="flex-1 bg-neutral-800">
         <SafeAreaView className={ios? iosSafeArea: androidSafeArea }>
             <View className="mx-4 mb-3 flex-row justify-between items-center border-2 border-neutral-500 rounded-full">
                 <TextInput
-                   placeholder='Search Movies'
-                   placeholderTextColor={'lightgray'}
-                   className="pb-1 pl-4 text-base font-semibold text-white tracking-wider"
+                    onChangeText={handleTextDebounce}
+                    placeholder='Search Movies'
+                    placeholderTextColor={'lightgray'}
+                    className="pb-1 pl-4 text-base font-semibold text-white tracking-wider"
 
                 />
                 <TouchableOpacity
@@ -58,12 +82,13 @@ export default function SearchScreen() {
                                              <View className="space-y-2 mb-4 ">
                                                  <Image
                                                      className="rounded-3xl"
-                                                     source={require('./../assets/images/ant.jpg')}
+                                                     //source={require('./../assets/images/ant.jpg')}
+                                                     source={{uri: image185(item?.poster_path) || fallbackMoviePoster}}
                                                      style={{width: width*0.44 , height: height*0.3}}
                                                  /> 
                                                  <Text className="text-neutral-300 ml-1" >
                                                      {
-                                                         movieName.length>20? movieName.slice(0,20) + ('...') : movieName
+                                                         item?.title.length>20? item?.title.slice(0,20) + ('...') : item?.title
                                                      }
                                                  </Text>
          
