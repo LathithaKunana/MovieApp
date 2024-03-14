@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import Cast from '../components/cast';
 import MovieList from '../components/movieList';
 import Loading from '../components/loading';
+import { fallbackMoviePoster, fetchMovieCredits, fetchMovieDetails, fetchSimilarMovies, image500 } from '../api/moviedb';
 
 const {width, height} = Dimensions.get("window");
 const ios =  Platform.OS === 'ios';
@@ -23,8 +24,38 @@ export default function MovieScreen() {
     const [cast, setCast] = useState([1,2,3,4,5])
     const [similarMovies, setSimilarMovies] = useState([1,2,3,4,5])
     const [loading, setLoading] = useState(false);
+    const [movie, setMovie] =useState({});
     
     let movieName = 'Ant-Man and the Wasp: Quantumania';
+    
+    useEffect(() =>{
+        console.log('itemid:',item.id)
+        setLoading(true)
+        getMovieDetails(item.id)
+        getMovieCredits(item.id)
+        getSimilarMovies(item.id)
+    }, [item])
+
+    const getMovieDetails = async id=>{
+        const data = await fetchMovieDetails(id);
+        //console.log('got movie details', data)
+        if(data) setMovie(data);
+        setLoading(false)
+    }
+
+    const getMovieCredits = async id=>{
+        const data = await fetchMovieCredits(id);
+        //console.log('got movie credits', data)
+        if(data && data.cast) setCast(data.cast);
+        setLoading(false)
+    }
+
+    const getSimilarMovies = async id=>{
+        const data = await fetchSimilarMovies(id);
+        //console.log('got similar movies', data)
+        if(data && data.results) setSimilarMovies(data.results);
+        setLoading(false)
+    }
     return (
         <ScrollView
             contentContainerStyle={{paddingBottom:20}}
@@ -46,7 +77,8 @@ export default function MovieScreen() {
                     ):(
                             <>
                             <Image
-                                source={require("../assets/images/ant.jpg")}
+                                // source={require("../assets/images/ant.jpg")}
+                                source={{uri: image500(movie?.poster_path) || fallbackMoviePoster}}
                                 style={{ width, height: height*0.55, }} 
                                 resizeMode='cover'     
                             />
@@ -64,36 +96,51 @@ export default function MovieScreen() {
             <View style={{marginTop: -(height*0.11)}} className="space-y-3">
                 <Text className='text-center text-white text-3xl font-bold tracking-wider '>
                     {
-                        movieName
+                        movie?.title
                     }
                 </Text>
                 {/* status, release, runtime */}
-                <Text className='text-neutral-400 font-semibold text-base text-center'>
-                    Released - 2020 - 170min
-                </Text>
+                {
+                    movie?.id?(
+                        <Text className='text-neutral-400 font-semibold text-base text-center'>
+                            {movie?.status} - {movie?.release_date?.split('-')[0]} - {movie?.runtime}min
+                        </Text>
+                    ) : null
+                }
+                
                 {/* genres */}
                 <View className="flex-row justify-center mx-4 space-x-2">
-                    <Text className="text-neutral-400 font-semibold text-base text-center">
-                        Action -
-                    </Text>
-                    <Text className="text-neutral-400 font-semibold text-base text-center">
+                    {
+                        movie?.genres?.map((genres,index) => {
+                            let showDot = index+1 != movie.genres.length
+                            return(
+                                <Text key={index} className="text-neutral-400 font-semibold text-base text-center">
+                                    {genres.name} {showDot? '.': null}
+                                </Text>
+                            )
+                        })
+                    }
+                    
+                    {/* <Text className="text-neutral-400 font-semibold text-base text-center">
                         Thriller -
                     </Text>
                     <Text className="text-neutral-400 font-semibold text-base text-center">
                         Comedy 
-                    </Text>
+                    </Text> */}
                 </View>
                 {/* description */}
                 <Text className ="text-neutral-400 mx-4 tracking-wide">
-                Ant-Man and the Wasp: Quantumania kicks off Phase 5 of the MCU, setting up a new era for the franchise and introducing Kang the Conqueror as the overarching Multiverse Saga villain. The movie explores the Quantum Realm in detail and reveals Hope's history with Kang, showcasing her complicated past in this world.
+                    {
+                        movie?.overview
+                    }
                 </Text>
             </View>
 
             {/* Cast */}
-            <Cast navigation={navigation} cast={cast} />
+            {cast.length> 0 && <Cast navigation={navigation} cast={cast} /> }
 
             {/* Similar movies */}
-            <MovieList hideSeeAll={true} title="Similar  Movies" data={similarMovies} />
+           {cast.length> 0 && <MovieList hideSeeAll={true} title="Similar  Movies" data={similarMovies} />}  
         </ScrollView>
     )
 }
